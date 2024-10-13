@@ -1,0 +1,10 @@
+﻿{
+  "Name": "NPCInfo",
+  "Author": "Eureka",
+  "Version": "1.0.0",
+  "Description": "<One or two sentences about the mod>",
+  "UniqueID": "Eureka.NPCInfo",
+  "EntryDll": "NPCInfo.dll",
+  "MinimumApiVersion": "4.0.0",
+  "UpdateKeys": []
+}
