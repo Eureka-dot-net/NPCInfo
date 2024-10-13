@@ -4,8 +4,6 @@ using StardewValley;
 using StardewValley.Characters;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
-using AchtuurCore.Utility;
-using HoverLabels;
 using System.Collections.Generic;
 
 namespace NPCInfo
@@ -44,7 +42,6 @@ namespace NPCInfo
 
         private void OnRenderedWorld(object sender, RenderedWorldEventArgs e)
         {
-            Helper.Data.WriteSaveData("LastGiftData", giftData);
             DrawNames(e);
         }
 
@@ -59,7 +56,6 @@ namespace NPCInfo
 
         private void DrawNames(RenderedWorldEventArgs e)
         {
-            giftData = Helper.Data.ReadSaveData<LastGiftData>("LastGiftData") ;
             if (Game1.eventUp) return; // Exit early if an event is active
 
             UpdateLastGifts();
