@@ -2,8 +2,8 @@
 using StardewModdingAPI.Events;
 using StardewValley;
 using StardewValley.Characters;
-using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
 
 namespace NPCInfo
@@ -18,9 +18,18 @@ namespace NPCInfo
         private LastGiftData giftData;
         private List<CustomNPC> npcToGift;
         private Item activeItem;
+        private Texture2D speakIcon;
+        private Texture2D giftIcon;
+        private Texture2D birthdayIcon;
 
         public override void Entry(IModHelper helper)
         {
+            // Load icons
+            speakIcon = Helper.ModContent.Load<Texture2D>("assets/speakIcon.png");
+            giftIcon = Helper.ModContent.Load<Texture2D>("assets/giftIcon.png");
+            birthdayIcon = Helper.ModContent.Load<Texture2D>("assets/birthdayIcon.png");
+
+            // Register events
             helper.Events.Display.RenderedWorld += OnRenderedWorld;
             helper.Events.GameLoop.SaveLoaded += OnSaveLoaded;
             helper.Events.GameLoop.Saving += OnSaving;
@@ -28,54 +37,26 @@ namespace NPCInfo
 
         private void OnSaveLoaded(object sender, SaveLoadedEventArgs e)
         {
-            // Load saved gift data (or create new if none exists)
+            // Load or initialize last gift data
             giftData = Helper.Data.ReadSaveData<LastGiftData>("LastGiftData") ?? new LastGiftData();
             Monitor.Log("Last gift data loaded", LogLevel.Debug);
         }
 
         private void OnSaving(object sender, SavingEventArgs e)
         {
-            // Save current gift data
+            // Save last gift data
             Helper.Data.WriteSaveData("LastGiftData", giftData);
             Monitor.Log("Last gift data saved", LogLevel.Debug);
         }
 
         private void OnRenderedWorld(object sender, RenderedWorldEventArgs e)
         {
-            DrawNames(e);
-        }
-
-        public Item GetLastGiftForNPC(string npcName)
-        {
-            if (giftData == null) giftData = new LastGiftData();
-
-            // Retrieve the last gift item by its ID
-            string lastGiftId = giftData.LastGifts.ContainsKey(npcName) ? giftData.LastGifts[npcName] : "";
-            return !string.IsNullOrEmpty(lastGiftId) ? ItemRegistry.Create(lastGiftId) : null;
-        }
-
-        private void DrawNames(RenderedWorldEventArgs e)
-        {
-            if (Game1.eventUp) return; // Exit early if an event is active
-
-            UpdateLastGifts();
-            ResetNpcToGiftList();
-            SetActiveItem();
-
-            SpriteFont smallFont = Game1.smallFont;
-
-            // Draw NPC names and last gift information
-            foreach (NPC character in Game1.currentLocation.characters)
+            if (!Game1.eventUp)
             {
-                if (!character.CanSocialize) continue;
-
-                CustomNPC npc = new CustomNPC(character);
-
-                if (npc.ShouldGift()) npcToGift.Add(npc); // Add to NPC list if eligible for a gift
-
-                DrawText(e.SpriteBatch, npc.GetDisplayName(), character.Position, smallFont, 1.25f, Color.White);
-
-                DrawLastGiftInfo(e, npc, character, smallFont);
+                UpdateLastGifts();
+                ResetNpcToGiftList();
+                SetActiveItem();
+                DrawNPCInfo(e);
             }
         }
 
@@ -85,26 +66,77 @@ namespace NPCInfo
 
             foreach (CustomNPC npc in npcToGift)
             {
-                if (!npc.ShouldGift()) // Update or add the last gift for each NPC
+                if (!npc.ShouldGift()) // Add or update the last gift for eligible NPCs
                 {
-                    string npcName = npc.character.Name;
-                    string giftId = activeItem.QualifiedItemId;
-
-                    giftData.LastGifts[npcName] = giftId;
-                    break; // Update only one NPC's last gift per draw cycle
+                    giftData.LastGifts[npc.character.Name] = activeItem.QualifiedItemId;
+                    break;
                 }
             }
         }
 
-        private void ResetNpcToGiftList()
+        private void ResetNpcToGiftList() => npcToGift = new List<CustomNPC>();
+
+        private void SetActiveItem() => activeItem = Game1.player.CurrentItem;
+
+        private void DrawNPCInfo(RenderedWorldEventArgs e)
         {
-            npcToGift = new List<CustomNPC>(); // Reset the list of NPCs to gift
+            SpriteFont font = Game1.smallFont;
+
+            foreach (NPC character in Game1.currentLocation.characters)
+            {
+                if (character.CanSocialize)
+                {
+                    CustomNPC npc = new CustomNPC(character);
+
+                    if (npc.ShouldGift()) npcToGift.Add(npc);
+
+                    DrawNameAndIcons(
+                        e.SpriteBatch,
+                        npc.GetDisplayName(),
+                        character.Position,
+                        font,
+                        1.25f,
+                        Color.White,
+                        npc.ShouldGift(),
+                        npc.ShouldSpeak(),
+                        character.isBirthday()
+                    );
+
+                    DrawLastGiftInfo(e, npc, character, font);
+                }
+            }
         }
 
-        private void SetActiveItem()
+        private void DrawNameAndIcons(SpriteBatch spriteBatch, string name, Vector2 position, SpriteFont font, float heightMultiplier, Color color, bool shouldGift, bool shouldSpeak, bool isBirthday)
         {
-            // Set the current item the player is holding as the active item
-            activeItem = Game1.player.CurrentItem;
+            Vector2 textSize = font.MeasureString(name);
+            float x = position.X + 32f;
+            float y = position.Y - 64f * heightMultiplier;
+
+            Vector2 drawPosition = Game1.GlobalToLocal(new Vector2(x, y - 30));
+
+            // Draw birthday icon on the left of the name
+            if (isBirthday)
+            {
+                spriteBatch.Draw(birthdayIcon, new Vector2(drawPosition.X - birthdayIcon.Width - 40, drawPosition.Y - 25), Color.White);
+            }
+
+            // Draw NPC name
+            spriteBatch.DrawString(font, name, drawPosition, color, 0f, textSize / 2f, 1f, SpriteEffects.None, 1f);
+
+            // Draw icons to the right of the name
+            float iconX = drawPosition.X + textSize.X / 2 + 5;
+
+            if (shouldGift)
+            {
+                spriteBatch.Draw(giftIcon, new Vector2(iconX, drawPosition.Y - 20), Color.White);
+                iconX += giftIcon.Width;
+            }
+
+            if (shouldSpeak)
+            {
+                spriteBatch.Draw(speakIcon, new Vector2(iconX, drawPosition.Y - 20), Color.White);
+            }
         }
 
         private void DrawLastGiftInfo(RenderedWorldEventArgs e, CustomNPC npc, NPC character, SpriteFont font)
@@ -113,8 +145,8 @@ namespace NPCInfo
             if (lastGift == null || !npc.ShouldGift()) return;
 
             Color color = GetGiftTasteColor(npc.character.getGiftTasteForThisItem(lastGift));
+            Vector2 giftPosition = new Vector2(character.Position.X, character.Position.Y);
 
-            Vector2 giftPosition = new Vector2(character.Position.X, character.Position.Y + 30);
             DrawText(e.SpriteBatch, lastGift.Name, giftPosition, font, 1.25f, color);
         }
 
@@ -122,20 +154,27 @@ namespace NPCInfo
         {
             return giftTaste switch
             {
-                0 => Color.LightGreen,    // Loved gift
+                0 => Color.LightGreen,     // Loved gift
                 1 or 2 => Color.LightCyan, // Liked or neutral gift
-                _ => Color.LightPink,     // Disliked gift
+                _ => Color.LightPink       // Disliked gift
             };
         }
 
-        private void DrawText(SpriteBatch spriteBatch, string name, Vector2 position, SpriteFont font, float heightMultiplier, Color color)
+        private void DrawText(SpriteBatch spriteBatch, string text, Vector2 position, SpriteFont font, float heightMultiplier, Color color)
         {
-            Vector2 textSize = font.MeasureString(name);
+            Vector2 textSize = font.MeasureString(text);
             float x = position.X + 32f;
             float y = position.Y - 64f * heightMultiplier;
 
             Vector2 drawPosition = Game1.GlobalToLocal(new Vector2(x, y));
-            spriteBatch.DrawString(font, name, drawPosition, color, 0f, textSize / 2f, 1f, SpriteEffects.None, 1f);
+            spriteBatch.DrawString(font, text, drawPosition, color, 0f, textSize / 2f, 1f, SpriteEffects.None, 1f);
+        }
+
+        public Item GetLastGiftForNPC(string npcName)
+        {
+            giftData ??= new LastGiftData();
+            string lastGiftId = giftData.LastGifts.ContainsKey(npcName) ? giftData.LastGifts[npcName] : "";
+            return !string.IsNullOrEmpty(lastGiftId) ? ItemRegistry.Create(lastGiftId) : null;
         }
     }
 }

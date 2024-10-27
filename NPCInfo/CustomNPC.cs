@@ -56,27 +56,10 @@ namespace NPCInfo
 
             if (character.isBirthday()) return $"!!! {displayName} !!!";
 
-            if (ShouldGift()) displayName = $"[G] {displayName}";
-            if (ShouldSpeak()) displayName = $"[S] {displayName}";
+            //if (ShouldGift()) displayName = $"[G] {displayName}";
+            //if (ShouldSpeak()) displayName = $"[S] {displayName}";
 
             return displayName;
-        }
-
-        public string GetTodoList()
-        {
-            List<string> tasks = new List<string>();
-
-            if (ShouldGift()) tasks.Add("Gift");
-            if (ShouldSpeak()) tasks.Add("Speak");
-
-            return tasks.Count > 0 ? "ToDo: " + string.Join(", ", tasks) : string.Empty;
-        }
-
-        public string GetLovedItems()
-        {
-            return string.Join(", ", Game1.player.Items
-                .Where(i => i != null && character.getGiftTasteForThisItem(i) == 0)
-                .Select(i => i.Name));
         }
     }
 }

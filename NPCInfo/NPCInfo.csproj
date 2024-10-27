@@ -10,4 +10,16 @@
     <PackageReference Include="Pathoschild.Stardew.ModBuildConfig" Version="4.3.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Assets\BirthdayIcon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\GiftIcon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\SpeakIcon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
