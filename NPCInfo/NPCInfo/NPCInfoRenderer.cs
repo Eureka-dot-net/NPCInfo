@@ -29,10 +29,10 @@ namespace NPCInfo
             bool shouldSpeak = npc.ShouldSpeak();
             bool isBirthday = npc.character.isBirthday();
             SpriteFont font = Game1.smallFont;
-
+          
             //Determine general location for the text / icons
-            float x = npc.character.Position.X + 32f;
-            float y = npc.character.Position.Y - 64f * 1.25f;
+            float x = npc.character.Position.X + npc.character.Sprite.SpriteWidth * 2;
+            float y = npc.character.Position.Y - npc.character.Sprite.SpriteHeight - 20 ;
             Vector2 drawPosition = Game1.GlobalToLocal(new Vector2(x, y));
 
             // Determine the position for the name

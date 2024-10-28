@@ -58,7 +58,7 @@ namespace NPCInfo
             {
                 //UpdateLastGifts();
                 //ResetNpcToGiftList();
-                CustomNPCManager.Instance.CheckGiftsToday();
+                CustomNPCManager.Instance.CheckGiftsTodayChanged();
                 npcInfoUI.RenderNPCs(e.SpriteBatch);
                 SetActiveItem();
             }

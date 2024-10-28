@@ -31,6 +31,7 @@ namespace NPCInfo
                 if (character.CanSocialize)
                 {
                     CustomNPC npc = CustomNPCManager.Instance.GetOrCreateCustomNPC(character);
+                   
                     npcInfoRenderer.DrawNPCInfo(spriteBatch, npc);
                 }
             }
