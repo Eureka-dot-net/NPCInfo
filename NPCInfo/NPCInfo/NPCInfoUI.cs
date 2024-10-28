@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using NPCInfo.NPCInfo;
 using StardewModdingAPI;
 using StardewValley;
 using System;
@@ -29,8 +30,7 @@ namespace NPCInfo
             {
                 if (character.CanSocialize)
                 {
-                    CustomNPC npc = new CustomNPC(character);
-                    
+                    CustomNPC npc = CustomNPCManager.Instance.GetOrCreateCustomNPC(character);
                     npcInfoRenderer.DrawNPCInfo(spriteBatch, npc);
                 }
             }

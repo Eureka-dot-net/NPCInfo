@@ -1,14 +1,15 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using NPCInfo.NPCInfo;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
+using StardewValley.GameData.Characters;
 
 namespace NPCInfo
 {
     public class ModEntry : Mod
     {
-        private List<CustomNPC> npcToGift;
         private Item activeItem;
         private Texture2D speakIcon;
         private Texture2D giftIcon;
@@ -26,8 +27,14 @@ namespace NPCInfo
             helper.Events.Display.RenderedWorld += OnRenderedWorld;
             helper.Events.GameLoop.SaveLoaded += OnSaveLoaded;
             helper.Events.GameLoop.Saving += OnSaving;
-
+            CustomNPCManager.Instance.GiftsTodayIncreased += OnGiftsTodayIncreased;
             npcInfoUI = new NPCInfoUI(helper);
+        }
+
+        private void OnGiftsTodayIncreased(CustomNPC npc)
+        {
+            LastGiftData.Instance.LastGifts[npc.character.Name] = activeItem.QualifiedItemId;
+            Monitor.Log($"Player gave {activeItem.Name} to {npc.DisplayName}", LogLevel.Info);
         }
 
         private void OnSaveLoaded(object sender, SaveLoadedEventArgs e)
@@ -49,28 +56,13 @@ namespace NPCInfo
         {
             if (!Game1.eventUp)
             {
-                UpdateLastGifts();
-                ResetNpcToGiftList();
-                SetActiveItem();
+                //UpdateLastGifts();
+                //ResetNpcToGiftList();
+                CustomNPCManager.Instance.CheckGiftsToday();
                 npcInfoUI.RenderNPCs(e.SpriteBatch);
+                SetActiveItem();
             }
         }
-
-        private void UpdateLastGifts()
-        {
-            if (npcToGift == null) return;
-
-            foreach (CustomNPC npc in npcToGift)
-            {
-                if (!npc.ShouldGift()) // Add or update the last gift for eligible NPCs
-                {
-                    LastGiftData.Instance.LastGifts[npc.character.Name] = activeItem.QualifiedItemId;
-                    break;
-                }
-            }
-        }
-
-        private void ResetNpcToGiftList() => npcToGift = new List<CustomNPC>();
 
         private void SetActiveItem() => activeItem = Game1.player.CurrentItem;
 

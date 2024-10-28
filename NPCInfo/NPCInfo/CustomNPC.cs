@@ -27,24 +27,30 @@ namespace NPCInfo
         public string DisplayName => character.displayName;
         public string Name => character.Name;
 
+        private int previousGiftsToday;
+        private Friendship friendshipData;
+
         public CustomNPC(NPC character)
         {
             this.character = character;
+            if (Game1.player.friendshipData.ContainsKey(character.Name))
+            {
+                friendshipData = Game1.player.friendshipData[character.Name];
+                previousGiftsToday = friendshipData.GiftsToday;
+            }
         }
 
         public int GetFriendshipPoints()
         {
-            if (!Game1.player.friendshipData.ContainsKey(character.Name)) return 0;
-
-            var friendshipData = Game1.player.friendshipData[character.Name];
+            if (friendshipData == null) return 0;
             return friendshipData.Points;
         }
 
         public int GetMaxPoints()
         {
-            if (!Game1.player.friendshipData.ContainsKey(character.Name)) return 0;
+            if (friendshipData == null) return 0;
 
-            bool isDating = Game1.player.friendshipData[character.Name].IsDating();
+            bool isDating = friendshipData.IsDating();
 
             return character.isMarried() ? 3500 :
                 character.datable.Value && !isDating ? NPC.maxFriendshipPoints - 500 :
@@ -54,18 +60,17 @@ namespace NPCInfo
         public bool ShouldGift()
         {
             if (GetFriendshipPoints() >= GetMaxPoints()) return false;
-            if (!Game1.player.friendshipData.ContainsKey(character.Name)) return false;
+            if (friendshipData == null) return false;
 
-            var friendshipData = Game1.player.friendshipData[character.Name];
             if (character.isBirthday()) return friendshipData.GiftsToday == 0;
             return friendshipData.GiftsThisWeek < 2 && friendshipData.GiftsToday == 0;
         }
 
         public bool ShouldSpeak()
         {
-            if (!Game1.player.friendshipData.ContainsKey(character.Name)) return false;
+            if (friendshipData == null) return false;
 
-            return !Game1.player.friendshipData[character.Name].TalkedToToday;
+            return !friendshipData.TalkedToToday;
         }
 
         public string GetDisplayName()
@@ -99,5 +104,17 @@ namespace NPCInfo
                 _ => LighterPink       // Disliked gift
             };
         }
+
+        public bool CheckGiftsTodayChanged()
+        {
+            if (friendshipData == null) return false;
+            if (friendshipData.GiftsToday > previousGiftsToday)
+            {
+                previousGiftsToday = friendshipData.GiftsToday;
+                return true;
+            }
+            return false;
+        }
+
     }
 }
