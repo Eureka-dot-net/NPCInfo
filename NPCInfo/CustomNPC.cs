@@ -8,7 +8,7 @@ namespace NPCInfo
     {
         public NPC character;
 
-        public string Name => character.Name;
+        public string Name => character.displayName;
 
         public CustomNPC(NPC character)
         {
@@ -40,6 +40,7 @@ namespace NPCInfo
             if (!Game1.player.friendshipData.ContainsKey(character.Name)) return false;
 
             var friendshipData = Game1.player.friendshipData[character.Name];
+            if (character.isBirthday()) return friendshipData.GiftsToday == 0;
             return friendshipData.GiftsThisWeek < 2 && friendshipData.GiftsToday == 0;
         }
 
@@ -54,7 +55,7 @@ namespace NPCInfo
         {
             string displayName = character.displayName;
 
-            if (character.isBirthday()) return $"!!! {displayName} !!!";
+            if (character.isBirthday()) return $"! {displayName} !";
 
             //if (ShouldGift()) displayName = $"[G] {displayName}";
             //if (ShouldSpeak()) displayName = $"[S] {displayName}";

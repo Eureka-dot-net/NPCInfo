@@ -1,10 +1,8 @@
-﻿using StardewModdingAPI;
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
-using StardewValley.Characters;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using System.Collections.Generic;
 
 namespace NPCInfo
 {
@@ -56,7 +54,7 @@ namespace NPCInfo
                 UpdateLastGifts();
                 ResetNpcToGiftList();
                 SetActiveItem();
-                DrawNPCInfo(e);
+                DrawAllNPCInfo(e);
             }
         }
 
@@ -78,76 +76,72 @@ namespace NPCInfo
 
         private void SetActiveItem() => activeItem = Game1.player.CurrentItem;
 
-        private void DrawNPCInfo(RenderedWorldEventArgs e)
+        private void DrawAllNPCInfo(RenderedWorldEventArgs e)
         {
-            SpriteFont font = Game1.smallFont;
-
             foreach (NPC character in Game1.currentLocation.characters)
             {
                 if (character.CanSocialize)
                 {
                     CustomNPC npc = new CustomNPC(character);
 
-                    if (npc.ShouldGift()) npcToGift.Add(npc);
+                    if (npc.ShouldGift())
+                        npcToGift.Add(npc);
 
-                    DrawNameAndIcons(
+                    DrawNPCInfo(
                         e.SpriteBatch,
-                        npc.GetDisplayName(),
-                        character.Position,
-                        font,
-                        1.25f,
-                        Color.White,
-                        npc.ShouldGift(),
-                        npc.ShouldSpeak(),
-                        character.isBirthday()
+                        npc
                     );
-
-                    DrawLastGiftInfo(e, npc, character, font);
                 }
             }
         }
 
-        private void DrawNameAndIcons(SpriteBatch spriteBatch, string name, Vector2 position, SpriteFont font, float heightMultiplier, Color color, bool shouldGift, bool shouldSpeak, bool isBirthday)
+        private void DrawNPCInfo(SpriteBatch spriteBatch, CustomNPC npc)
         {
-            Vector2 textSize = font.MeasureString(name);
-            float x = position.X + 32f;
-            float y = position.Y - 64f * heightMultiplier;
+            string name = npc.GetDisplayName();
+            bool shouldGift = npc.ShouldGift();
+            bool shouldSpeak = npc.ShouldSpeak();
+            bool isBirthday = npc.character.isBirthday();
+            SpriteFont font = Game1.smallFont;
 
-            Vector2 drawPosition = Game1.GlobalToLocal(new Vector2(x, y - 30));
+            //Determine general location for the text / icons
+            float x = npc.character.Position.X + 32f;
+            float y = npc.character.Position.Y - 64f * 1.25f;
+            Vector2 drawPosition = Game1.GlobalToLocal(new Vector2(x, y));
 
-            // Draw birthday icon on the left of the name
-            if (isBirthday)
+            // Determine the position for the name
+            float nameY = drawPosition.Y;
+            Item lastGift = GetLastGiftForNPC(npc.character.Name);
+
+            //Draw last gift
+            if (lastGift != null && shouldGift)
             {
-                spriteBatch.Draw(birthdayIcon, new Vector2(drawPosition.X - birthdayIcon.Width - 40, drawPosition.Y - 25), Color.White);
+                // If there is a last gift, use its color for the drawing
+                Color color = GetGiftTasteColor(npc.character.getGiftTasteForThisItem(lastGift));
+                Vector2 giftPosition = new Vector2(npc.character.Position.X, npc.character.Position.Y);
+
+                // Draw last gift info
+                spriteBatch.DrawString(font, lastGift.Name, new Vector2(drawPosition.X, nameY), color, 0f, font.MeasureString(lastGift.Name) / 2f, 1f, SpriteEffects.None, 1f);
+               
+                nameY -= 30;
             }
 
             // Draw NPC name
-            spriteBatch.DrawString(font, name, drawPosition, color, 0f, textSize / 2f, 1f, SpriteEffects.None, 1f);
+            Vector2 textSize = font.MeasureString(name);
+            spriteBatch.DrawString(font, name, new Vector2(drawPosition.X, nameY), Color.White, 0f, textSize / 2f, 1f, SpriteEffects.None, 1f);
 
-            // Draw icons to the right of the name
+            // Draw icons to the side
             float iconX = drawPosition.X + textSize.X / 2 + 5;
 
             if (shouldGift)
             {
-                spriteBatch.Draw(giftIcon, new Vector2(iconX, drawPosition.Y - 20), Color.White);
-                iconX += giftIcon.Width;
-            }
+                var giftPos = new Vector2(drawPosition.X - 45 - (textSize.X / 2f), nameY - 20);
 
+                spriteBatch.Draw(isBirthday ? birthdayIcon : giftIcon, giftPos, Color.White);
+            }
             if (shouldSpeak)
             {
-                spriteBatch.Draw(speakIcon, new Vector2(iconX, drawPosition.Y - 20), Color.White);
+                spriteBatch.Draw(speakIcon, new Vector2(iconX, nameY - 20), Color.White);
             }
-        }
-
-        private void DrawLastGiftInfo(RenderedWorldEventArgs e, CustomNPC npc, NPC character, SpriteFont font)
-        {
-            Item lastGift = GetLastGiftForNPC(npc.character.Name);
-            if (lastGift == null || !npc.ShouldGift()) return;
-
-            Color color = GetGiftTasteColor(npc.character.getGiftTasteForThisItem(lastGift));
-            Vector2 giftPosition = new Vector2(character.Position.X, character.Position.Y);
-
-            DrawText(e.SpriteBatch, lastGift.Name, giftPosition, font, 1.25f, color);
         }
 
         private Color GetGiftTasteColor(int giftTaste)
@@ -160,21 +154,12 @@ namespace NPCInfo
             };
         }
 
-        private void DrawText(SpriteBatch spriteBatch, string text, Vector2 position, SpriteFont font, float heightMultiplier, Color color)
-        {
-            Vector2 textSize = font.MeasureString(text);
-            float x = position.X + 32f;
-            float y = position.Y - 64f * heightMultiplier;
-
-            Vector2 drawPosition = Game1.GlobalToLocal(new Vector2(x, y));
-            spriteBatch.DrawString(font, text, drawPosition, color, 0f, textSize / 2f, 1f, SpriteEffects.None, 1f);
-        }
-
         public Item GetLastGiftForNPC(string npcName)
         {
             giftData ??= new LastGiftData();
             string lastGiftId = giftData.LastGifts.ContainsKey(npcName) ? giftData.LastGifts[npcName] : "";
             return !string.IsNullOrEmpty(lastGiftId) ? ItemRegistry.Create(lastGiftId) : null;
         }
+
     }
 }
