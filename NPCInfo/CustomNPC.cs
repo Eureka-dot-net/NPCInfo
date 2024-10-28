@@ -1,18 +1,38 @@
-﻿using StardewValley;
+﻿using Microsoft.Xna.Framework;
+using StardewValley;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace NPCInfo
 {
-    internal class CustomNPC
+    public class GiftItem
+    {
+        public Item Item { get; }
+        public Color GiftColor { get; }
+
+        public GiftItem(Item item, Color giftColor)
+        {
+            Item = item;
+            GiftColor = giftColor;
+        }
+    }
+
+    public class CustomNPC
     {
         public NPC character;
 
-        public string Name => character.displayName;
+        Color LighterGreen = new Color(200, 255, 200);  // Very light green
+        Color LighterCyan = new Color(200, 255, 255);   // Very light cyan
+        Color LighterPink = new Color(255, 200, 200);
+        public string DisplayName => character.displayName;
+        public string Name => character.Name;
 
-        public CustomNPC(NPC character)
+        private LastGiftData giftData;
+
+        public CustomNPC(NPC character, LastGiftData giftData)
         {
             this.character = character;
+            this.giftData = giftData ?? new LastGiftData();
         }
 
         public int GetFriendshipPoints()
@@ -57,10 +77,30 @@ namespace NPCInfo
 
             if (character.isBirthday()) return $"! {displayName} !";
 
-            //if (ShouldGift()) displayName = $"[G] {displayName}";
-            //if (ShouldSpeak()) displayName = $"[S] {displayName}";
-
             return displayName;
+        }
+
+        public GiftItem GetLastGift()
+        {
+            string lastGiftId = giftData.LastGifts.ContainsKey(Name) ? giftData.LastGifts[Name] : "";
+            if (string.IsNullOrEmpty(lastGiftId))
+                return null;
+
+            Item lastGift = ItemRegistry.Create(lastGiftId);
+            Color giftColor = GetGiftTasteColor(lastGift);
+            return new GiftItem(lastGift, giftColor);
+        }
+
+        private Color GetGiftTasteColor(Item lastGift)
+        {
+            if (lastGift == null) return Color.White;
+            int taste = character.getGiftTasteForThisItem(lastGift);
+            return taste switch
+            {
+                0 => LighterGreen,     // Loved gift
+                1 or 2 => LighterCyan, // Liked or neutral gift
+                _ => LighterPink       // Disliked gift
+            };
         }
     }
 }

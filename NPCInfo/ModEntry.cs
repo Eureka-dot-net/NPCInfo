@@ -82,7 +82,7 @@ namespace NPCInfo
             {
                 if (character.CanSocialize)
                 {
-                    CustomNPC npc = new CustomNPC(character);
+                    CustomNPC npc = new CustomNPC(character,giftData);
 
                     if (npc.ShouldGift())
                         npcToGift.Add(npc);
@@ -110,17 +110,17 @@ namespace NPCInfo
 
             // Determine the position for the name
             float nameY = drawPosition.Y;
-            Item lastGift = GetLastGiftForNPC(npc.character.Name);
-
+            GiftItem lastGiftItem = npc.GetLastGift();
+          
             //Draw last gift
-            if (lastGift != null && shouldGift)
+            if (lastGiftItem != null && shouldGift)
             {
-                // If there is a last gift, use its color for the drawing
-                Color color = GetGiftTasteColor(npc.character.getGiftTasteForThisItem(lastGift));
+                Item lastGift = lastGiftItem.Item;
+
                 Vector2 giftPosition = new Vector2(npc.character.Position.X, npc.character.Position.Y);
 
                 // Draw last gift info
-                spriteBatch.DrawString(font, lastGift.Name, new Vector2(drawPosition.X, nameY), color, 0f, font.MeasureString(lastGift.Name) / 2f, 1f, SpriteEffects.None, 1f);
+                spriteBatch.DrawString(font, lastGift.Name, new Vector2(drawPosition.X, nameY), lastGiftItem.GiftColor, 0f, font.MeasureString(lastGift.Name) / 2f, 1f, SpriteEffects.None, 1f);
                
                 nameY -= 30;
             }
@@ -153,13 +153,5 @@ namespace NPCInfo
                 _ => Color.LightPink       // Disliked gift
             };
         }
-
-        public Item GetLastGiftForNPC(string npcName)
-        {
-            giftData ??= new LastGiftData();
-            string lastGiftId = giftData.LastGifts.ContainsKey(npcName) ? giftData.LastGifts[npcName] : "";
-            return !string.IsNullOrEmpty(lastGiftId) ? ItemRegistry.Create(lastGiftId) : null;
-        }
-
     }
 }
