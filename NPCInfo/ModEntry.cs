@@ -6,14 +6,8 @@ using StardewValley;
 
 namespace NPCInfo
 {
-    public class LastGiftData
-    {
-        public Dictionary<string, string> LastGifts { get; set; } = new Dictionary<string, string>();
-    }
-
     public class ModEntry : Mod
     {
-        private LastGiftData giftData;
         private List<CustomNPC> npcToGift;
         private Item activeItem;
         private Texture2D speakIcon;
@@ -36,14 +30,15 @@ namespace NPCInfo
         private void OnSaveLoaded(object sender, SaveLoadedEventArgs e)
         {
             // Load or initialize last gift data
-            giftData = Helper.Data.ReadSaveData<LastGiftData>("LastGiftData") ?? new LastGiftData();
+
+            LastGiftData.Instance.LoadData(this.Helper);
             Monitor.Log("Last gift data loaded", LogLevel.Debug);
         }
 
         private void OnSaving(object sender, SavingEventArgs e)
         {
             // Save last gift data
-            Helper.Data.WriteSaveData("LastGiftData", giftData);
+            LastGiftData.Instance.SaveData(Helper);
             Monitor.Log("Last gift data saved", LogLevel.Debug);
         }
 
@@ -66,7 +61,7 @@ namespace NPCInfo
             {
                 if (!npc.ShouldGift()) // Add or update the last gift for eligible NPCs
                 {
-                    giftData.LastGifts[npc.character.Name] = activeItem.QualifiedItemId;
+                    LastGiftData.Instance.LastGifts[npc.character.Name] = activeItem.QualifiedItemId;
                     break;
                 }
             }
@@ -82,7 +77,7 @@ namespace NPCInfo
             {
                 if (character.CanSocialize)
                 {
-                    CustomNPC npc = new CustomNPC(character,giftData);
+                    CustomNPC npc = new CustomNPC(character);
 
                     if (npc.ShouldGift())
                         npcToGift.Add(npc);

@@ -27,12 +27,9 @@ namespace NPCInfo
         public string DisplayName => character.displayName;
         public string Name => character.Name;
 
-        private LastGiftData giftData;
-
-        public CustomNPC(NPC character, LastGiftData giftData)
+        public CustomNPC(NPC character)
         {
             this.character = character;
-            this.giftData = giftData ?? new LastGiftData();
         }
 
         public int GetFriendshipPoints()
@@ -82,7 +79,7 @@ namespace NPCInfo
 
         public GiftItem GetLastGift()
         {
-            string lastGiftId = giftData.LastGifts.ContainsKey(Name) ? giftData.LastGifts[Name] : "";
+            string lastGiftId = LastGiftData.Instance.LastGifts.ContainsKey(Name) ? LastGiftData.Instance.LastGifts[Name] : "";
             if (string.IsNullOrEmpty(lastGiftId))
                 return null;
 
