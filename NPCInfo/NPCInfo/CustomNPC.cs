@@ -1,7 +1,10 @@
 ﻿using Microsoft.Xna.Framework;
 using StardewValley;
+using StardewValley.GameData.Characters;
+using StardewValley.Quests;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 namespace NPCInfo
 {
@@ -71,6 +74,20 @@ namespace NPCInfo
             if (friendshipData == null) return false;
 
             return !friendshipData.TalkedToToday;
+        }
+
+        public bool IsQuestNPC()
+        {
+            foreach (var quest in Game1.player.questLog)
+            {
+                switch (quest)
+                {
+                    case ItemDeliveryQuest deliveryQuest when deliveryQuest.target.ToString() == this.Name:
+                    case ResourceCollectionQuest collectionQuest when collectionQuest.target.ToString() == this.Name:
+                        return true;
+                }
+            }
+            return false; 
         }
 
         public string GetDisplayName()
