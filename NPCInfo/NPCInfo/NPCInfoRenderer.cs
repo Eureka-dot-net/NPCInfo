@@ -24,7 +24,7 @@ namespace NPCInfo
             this.birthdayIcon = birthdayIcon;
         }
 
-        public void DrawNPCInfo2(SpriteBatch spriteBatch, CustomNPC npc)
+        public void DrawNPCInfo(SpriteBatch spriteBatch, CustomNPC npc)
         {
             NPCInfoGrid grid = new NPCInfoGrid();
             List<GridItem> nameRow = new List<GridItem>();

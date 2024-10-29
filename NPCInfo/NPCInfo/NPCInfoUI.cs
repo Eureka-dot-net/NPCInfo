@@ -32,7 +32,7 @@ namespace NPCInfo
                 {
                     CustomNPC npc = CustomNPCManager.Instance.GetOrCreateCustomNPC(character);
                    
-                    npcInfoRenderer.DrawNPCInfo2(spriteBatch, npc);
+                    npcInfoRenderer.DrawNPCInfo(spriteBatch, npc);
                 }
             }
         }
