@@ -2,7 +2,7 @@
   "Name": "NPCInfo",
   "Author": "Eureka",
   "Version": "1.0.0",
-  "Description": "<One or two sentences about the mod>",
+  "Description": "The NPCInfo mod enhances your Stardew Valley experience by displaying NPC names, indicating when to gift or speak to them, and showing the last gift given, color-coded by preference.",
   "UniqueID": "Eureka.NPCInfo",
   "EntryDll": "NPCInfo.dll",
   "MinimumApiVersion": "4.0.0",
