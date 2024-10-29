@@ -91,6 +91,7 @@ namespace NPCInfo
                 getValue: () => this.Config.ShowLastGift,
                 setValue: value => this.Config.ShowLastGift = value
             );
+            
         }
 
         private void OnGiftsTodayIncreased(CustomNPC npc)

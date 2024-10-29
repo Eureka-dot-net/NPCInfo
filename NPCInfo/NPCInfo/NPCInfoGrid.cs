@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Netcode;
 using StardewValley;
 using System;
 using System.Collections.Generic;
@@ -71,7 +72,12 @@ namespace NPCInfo.NPCInfo
 
         public override void Draw(SpriteBatch spriteBatch, Vector2 position)
         {
+            Vector2 shadowOffset = new Vector2(2, 2);           
+            spriteBatch.DrawString(font, text, position + shadowOffset, Color.Black); // Shadow
+            shadowOffset = new Vector2(1, 1);
+            spriteBatch.DrawString(font, text, position + shadowOffset, Color.White);
             spriteBatch.DrawString(font, text, position, color);
+
         }
 
         public override float Width => font.MeasureString(text).X;

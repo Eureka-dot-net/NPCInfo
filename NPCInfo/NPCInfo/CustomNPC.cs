@@ -62,17 +62,16 @@ namespace NPCInfo
 
         public bool ShouldGift()
         {
+            if (friendshipData == null) return character.CanSocialize;
             if (GetFriendshipPoints() >= GetMaxPoints()) return false;
-            if (friendshipData == null) return false;
-
             if (character.isBirthday()) return friendshipData.GiftsToday == 0;
             return friendshipData.GiftsThisWeek < 2 && friendshipData.GiftsToday == 0;
         }
 
         public bool ShouldSpeak()
         {
-            if (friendshipData == null) return false;
-
+            if (friendshipData == null) return character.CanSocialize;
+            if (GetFriendshipPoints() >= GetMaxPoints()) return false;
             return !friendshipData.TalkedToToday;
         }
 
@@ -87,7 +86,7 @@ namespace NPCInfo
                         return true;
                 }
             }
-            return false; 
+            return false;
         }
 
         public string GetDisplayName()
@@ -116,14 +115,16 @@ namespace NPCInfo
             int taste = character.getGiftTasteForThisItem(lastGift);
             return taste switch
             {
-                0 => LighterGreen,     // Loved gift
-                1 or 2 => LighterCyan, // Liked or neutral gift
-                _ => LighterPink       // Disliked gift
+                0 => Color.Green,     // Loved gift
+                1 or 2 => Color.Blue, // Liked or neutral gift
+                _ => Color.Red       // Disliked gift
             };
         }
 
         public bool CheckGiftsTodayChanged()
         {
+            if (!Game1.player.friendshipData.ContainsKey(character.Name)) return false;
+            friendshipData = Game1.player.friendshipData[character.Name];
             if (friendshipData == null) return false;
             if (friendshipData.GiftsToday > previousGiftsToday)
             {
@@ -137,7 +138,7 @@ namespace NPCInfo
         {
             //Determine general location for the text / icons
             float x = character.Position.X + character.Sprite.SpriteWidth * 2;
-            float y = character.Position.Y - character.Sprite.SpriteHeight - 10;
+            float y = character.Position.Y - character.Sprite.SpriteHeight - 20;
             Vector2 drawPosition = Game1.GlobalToLocal(new Vector2(x, y));
             return drawPosition;
         }

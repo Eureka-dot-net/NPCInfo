@@ -46,11 +46,12 @@ namespace NPCInfo.NPCInfo
 
         public void CheckGiftsTodayChanged()
         {
-            foreach (var npc in npcDictionary.Values)
+            foreach (var npc in Game1.currentLocation.characters)
             {
-                if (npc.CheckGiftsTodayChanged())
+                var customNpc = GetOrCreateCustomNPC(npc);
+                if (customNpc.CheckGiftsTodayChanged())
                 {
-                    GiftsTodayIncreased?.Invoke(npc);
+                    GiftsTodayIncreased?.Invoke(customNpc);
                 }
             }
         }
