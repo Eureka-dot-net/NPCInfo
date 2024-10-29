@@ -116,5 +116,13 @@ namespace NPCInfo
             return false;
         }
 
+        public Vector2 GetLabelTopPosition()
+        {
+            //Determine general location for the text / icons
+            float x = character.Position.X + character.Sprite.SpriteWidth * 2;
+            float y = character.Position.Y - character.Sprite.SpriteHeight - 10;
+            Vector2 drawPosition = Game1.GlobalToLocal(new Vector2(x, y));
+            return drawPosition;
+        }
     }
 }
