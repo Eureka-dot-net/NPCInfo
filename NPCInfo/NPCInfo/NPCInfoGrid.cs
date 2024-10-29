@@ -28,7 +28,7 @@ namespace NPCInfo.NPCInfo
             {
                 var row = rows[i];
                 float rowHeight = 0f;
-                
+
                 var totalRowLength = 0f;
                 var maxColLength = 0f;
                 foreach (var item in row)
@@ -72,11 +72,32 @@ namespace NPCInfo.NPCInfo
 
         public override void Draw(SpriteBatch spriteBatch, Vector2 position)
         {
-            Vector2 shadowOffset = new Vector2(2, 2);           
-            spriteBatch.DrawString(font, text, position + shadowOffset, Color.Black); // Shadow
-            shadowOffset = new Vector2(1, 1);
-            spriteBatch.DrawString(font, text, position + shadowOffset, Color.White);
-            spriteBatch.DrawString(font, text, position, color);
+            // Define offsets for the outline
+            Vector2[] outlineOffsets = {
+    new Vector2(-1, -1), new Vector2(1, -1),
+    new Vector2(-1, 1), new Vector2(1, 1)
+};
+            int max = 2;
+            if (color == Color.White)  max = 1;
+            for (int i = 1; i <= max; i++)
+            {
+                // Draw the white outline
+                foreach (var offset in outlineOffsets)
+                {
+                    spriteBatch.DrawString(font, text, position + (offset * i), color);
+                }
+            }
+
+            // Draw the black outline around the white outline
+            foreach (var offset in outlineOffsets)
+            {
+                spriteBatch.DrawString(font, text, position + (offset * (max+1)), Color.Black);
+            }
+            //Vector2 shadowOffset = new Vector2(2, 2);           
+            //spriteBatch.DrawString(font, text, position + shadowOffset, Color.Black); // Shadow
+            //shadowOffset = new Vector2(1, 1);
+            //spriteBatch.DrawString(font, text, position + shadowOffset, Color.White);
+            spriteBatch.DrawString(font, text, position, Color.White);
 
         }
 

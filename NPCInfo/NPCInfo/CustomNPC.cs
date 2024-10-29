@@ -116,8 +116,11 @@ namespace NPCInfo
             return taste switch
             {
                 0 => Color.Green,     // Loved gift
-                1 or 2 => Color.Blue, // Liked or neutral gift
-                _ => Color.Red       // Disliked gift
+                2 => Color.Blue, // Liked 
+                4 => Color.Gray, // Neutral
+                6 => Color.Orange ,
+                8 => Color.Red,   // Disliked gift
+                _ => Color.White
             };
         }
 
