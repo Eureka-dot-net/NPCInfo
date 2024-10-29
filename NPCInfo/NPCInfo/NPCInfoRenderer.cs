@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using NPCInfo.Config;
 using NPCInfo.NPCInfo;
 using StardewValley;
 using System;
@@ -24,29 +25,38 @@ namespace NPCInfo
             this.birthdayIcon = birthdayIcon;
         }
 
-        public void DrawNPCInfo(SpriteBatch spriteBatch, CustomNPC npc)
+        public void DrawNPCInfo(SpriteBatch spriteBatch, CustomNPC npc, ModConfig config)
         {
             NPCInfoGrid grid = new NPCInfoGrid();
             List<GridItem> nameRow = new List<GridItem>();
-            if (npc.ShouldGift())
+            if (npc.ShouldGift() && config.ShowShouldGift)
             {
-                nameRow.Add(new TextureItem(this.giftIcon));
+                nameRow.Add(new TextureItem(npc.character.isBirthday() ? this.birthdayIcon : this.giftIcon));
             }
-            nameRow.Add(new TextItem(npc.DisplayName, Color.White, Game1.smallFont));
+            if (config.ShowName)
+            {
+                nameRow.Add(new TextItem(npc.DisplayName, Color.White, Game1.smallFont));
+            }
 
-            if (npc.ShouldSpeak())
+            if (npc.ShouldSpeak() && config.ShowShouldSpeak)
             {
                 nameRow.Add(new TextureItem(this.speakIcon));
             }
-            grid.AddRow(nameRow.ToArray());
 
-            GiftItem lastGiftItem = npc.GetLastGift();
-            if (lastGiftItem != null && npc.ShouldGift())
+            if (nameRow.Count > 0)
             {
-                Item lastGift = lastGiftItem.Item;
-                grid.AddRow(new TextItem(lastGift.DisplayName, lastGiftItem.GiftColor, Game1.smallFont));
+                grid.AddRow(nameRow.ToArray());
             }
 
+            if (config.ShowLastGift)
+            {
+                GiftItem lastGiftItem = npc.GetLastGift();
+                if (lastGiftItem != null && npc.ShouldGift())
+                {
+                    Item lastGift = lastGiftItem.Item;
+                    grid.AddRow(new TextItem(lastGift.DisplayName, lastGiftItem.GiftColor, Game1.smallFont));
+                }
+            }
             grid.Draw(spriteBatch,npc);
 
         }

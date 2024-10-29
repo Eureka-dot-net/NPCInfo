@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using NPCInfo.Config;
 using NPCInfo.NPCInfo;
 using StardewModdingAPI;
 using StardewValley;
@@ -24,7 +25,7 @@ namespace NPCInfo
             npcInfoRenderer = new NPCInfoRenderer(speakIcon, giftIcon, birthdayIcon);
         }
 
-        public void RenderNPCs(SpriteBatch spriteBatch)
+        public void RenderNPCs(SpriteBatch spriteBatch, ModConfig config)
         {
             foreach (var character in Game1.currentLocation.characters)
             {
@@ -32,7 +33,7 @@ namespace NPCInfo
                 {
                     CustomNPC npc = CustomNPCManager.Instance.GetOrCreateCustomNPC(character);
                    
-                    npcInfoRenderer.DrawNPCInfo(spriteBatch, npc);
+                    npcInfoRenderer.DrawNPCInfo(spriteBatch, npc, config);
                 }
             }
         }
