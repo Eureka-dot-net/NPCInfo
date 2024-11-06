@@ -23,7 +23,7 @@ namespace NPCInfo
     public class CustomNPC
     {
         public NPC character;
-
+        
         Color LighterGreen = new Color(200, 255, 200);  // Very light green
         Color LighterCyan = new Color(200, 255, 255);   // Very light cyan
         Color LighterPink = new Color(255, 200, 200);
@@ -46,7 +46,7 @@ namespace NPCInfo
         public int GetFriendshipPoints()
         {
             if (friendshipData == null) return 0;
-            return friendshipData.Points;
+            return friendshipData.Points; 
         }
 
         public int GetMaxPoints()
@@ -117,9 +117,9 @@ namespace NPCInfo
             {
                 0 => Color.Green,     // Loved gift
                 2 => Color.Blue, // Liked 
-                4 => Color.Gray, // Neutral
-                6 => Color.Orange ,
-                8 => Color.Red,   // Disliked gift
+                4 => Color.Orange, // Disliked
+                6 => Color.Red , //Hated
+                8 => Color.Gray,   // Neutral
                 _ => Color.White
             };
         }

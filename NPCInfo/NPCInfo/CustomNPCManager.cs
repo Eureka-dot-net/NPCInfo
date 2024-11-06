@@ -46,9 +46,10 @@ namespace NPCInfo.NPCInfo
 
         public void CheckGiftsTodayChanged()
         {
-            foreach (var npc in Game1.currentLocation.characters)
+            foreach (var npc in Game1.currentLocation.characters.Where(x => x.CanSocialize))
             {
                 var customNpc = GetOrCreateCustomNPC(npc);
+                if (customNpc == null) continue;
                 if (customNpc.CheckGiftsTodayChanged())
                 {
                     GiftsTodayIncreased?.Invoke(customNpc);

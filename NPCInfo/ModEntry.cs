@@ -91,7 +91,19 @@ namespace NPCInfo
                 getValue: () => this.Config.ShowLastGift,
                 setValue: value => this.Config.ShowLastGift = value
             );
-            
+
+            configMenu.AddSectionTitle(
+              mod: this.ModManifest,
+              text: () => "Additional Configuration for modded users"
+            );
+
+            configMenu.AddNumberOption(
+                mod: this.ModManifest,
+                name: () => "Number of gifts per week",
+                getValue: () => this.Config.NumGiftsPerWeek,
+                setValue: value => this.Config.NumGiftsPerWeek = value
+            );
+
         }
 
         private void OnGiftsTodayIncreased(CustomNPC npc)

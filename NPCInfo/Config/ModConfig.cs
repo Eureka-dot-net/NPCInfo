@@ -17,6 +17,8 @@ namespace NPCInfo.Config
 
         public bool ShowLastGift { get; set; }
 
+        public int NumGiftsPerWeek { get; set; }
+
         public ModConfig()
         {
             Enabled = true;
@@ -24,6 +26,7 @@ namespace NPCInfo.Config
             ShowShouldGift = true;
             ShowShouldSpeak = true;
             ShowLastGift = true;
+            NumGiftsPerWeek = 2;
         }
     }
 }
